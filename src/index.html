@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Inverse Matrix App</title>
+</head>
+<body>
+    <main>
+        <div class="menu-wrapper">
+            <form class="menu-form" action="" enctype="multipart/form-data">
+                <div class="input-wrapper">
+                    <label for="matrixSize">Size of matrix</label>
+                    <input type="number" class="input-size" name="matrixSize" value="2" min="2" max="10" required>
+                </div>
+                <div class="input-wrapper">
+                    <label for="inputType">Choose type of filling</label>
+                    <select class="select-input" name="inputType">
+                        <option value="1">Manually</option>
+                        <option value="2">Randomly</option>
+                        <option value="3">From file</option>
+                    </select>
+                </div>
+                <div class="input-wrapper input-wrapper_file">
+                    <label for="inputFile">Input file</label>
+                    <input type="file" class="input-file" name="inputFile" accept=".txt">
+                </div>
+                <div class="input-wrapper">
+                    <label for="inverseMethod">Choose method</label>
+                    <select class="select-method" name="inverseMethod" id="">
+                        <option value="1">Jordan-Gauss</option>
+                        <option value="2">Bordering</option>
+                    </select>
+                </div>
+                <div class="matrix-input"></div>
+                <div class="input-wrapper">
+                    <input type="submit" value="Calculate">
+                </div>
+            </form>
+            <button class="result-button">Download result</button>
+        </div>
+        <div class="matrix-wrapper">
+            <div class="matrix-output"></div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

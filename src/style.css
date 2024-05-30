@@ -1,0 +1,106 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+p, h1, h2 {
+    margin: 0;
+}
+
+main {
+    position: relative;
+    width: 100%;
+    display: flex;
+    gap: 20px;
+}
+
+/* Menu */
+
+.menu-wrapper {
+    position: relative;
+    width: 300px;
+    height: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.menu-form {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 10px;
+}
+
+.menu-form label {
+    margin-top: 10px;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.input-wrapper_file {
+    display: none;
+}
+
+.matrix-input {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    margin-left: 240px;
+    gap: 10px;
+}
+
+.matrix-input .matrix-row {
+    position: relative;
+    display: flex;
+    gap: 10px;
+}
+
+.matrix-input .matrix-row input {
+    position: relative;
+    width: 20px;
+    height: 16px;
+}
+
+.result-button {
+    position: relative;
+    width: 150px;
+}
+
+/* Matrixes */
+
+.matrix-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: start;
+    gap: 20px;
+}
+
+.matrix-output {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.matrix-output .matrix-row {
+    position: relative;
+    display: flex;
+    gap: 10px;
+}
+
+.matrix-output .matrix-row span {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    text-align: center;
+    font-size: 16px;
+}

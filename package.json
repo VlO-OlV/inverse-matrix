@@ -1,0 +1,19 @@
+{
+  "name": "inverse-matrix-app",
+  "version": "1.0.0",
+  "main": "./dist/main.js",
+  "scripts": {
+    "build-app": "npx @electron/packager . inverse-matrix-app --overwrite",
+    "build": "tsc && yarn copy",
+    "copy": "@powershell cp ./src/index.html ./dist/ && @powershell cp ./src/style.css ./dist/",
+    "start": "yarn build && electron ./dist/main.js"
+  },
+  "repository": "https://github.com/VlO-OlV/inverse-matrix-app",
+  "author": "VlO-OlV <linichenko.vanya@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@electron/packager": "^18.3.2",
+    "electron": "^30.0.6",
+    "typescript": "^5.4.5"
+  }
+}
