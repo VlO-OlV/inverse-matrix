@@ -1,12 +1,14 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
-import Matrix from './components/logic/Matrix';
-import FileHandler from './components/logic/FileHandler';
+import Matrix from './classes/Matrix';
+import FileHandler from './classes/FileHandler';
 import path from 'node:path';
-import JordanGaussMethod from './components/logic/JordanGaussMethod';
-import BorderingMethod from './components/logic/BorderingMethod';
+import JordanGaussMethod from './classes/JordanGaussMethod';
+import BorderingMethod from './classes/BorderingMethod';
+import InvalidDataException from './classes/InvalidDataException';
+import MatrixValidator from './classes/MatrixValidator';
 
 const createWindow = () => {
-    const win = new BrowserWindow({
+    const win: BrowserWindow = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
@@ -14,18 +16,19 @@ const createWindow = () => {
         }
     });
 
-    win.loadFile(path.join(__dirname, 'index.html'));
+    win.loadFile(path.join(__dirname, './view/index.html'));
     return win;
 }
 
 app.whenReady().then(() => {
-    const win = createWindow();
+    const win: BrowserWindow = createWindow();
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow();
         }
     });
+
     let fileHandler: FileHandler = new FileHandler();
     let jordanGaussMethod: JordanGaussMethod = new JordanGaussMethod();
     let borderingMethod: BorderingMethod = new BorderingMethod();
@@ -33,25 +36,50 @@ app.whenReady().then(() => {
     let initialMatrix: Matrix;
     let inversedMatrix: Matrix;
     let difficulty: number;
+    let method: number;
 
     ipcMain.on('get-matrix', (event, matrix, matrixMethod) => {
         initialMatrix = new Matrix(matrix);
-        [inversedMatrix, difficulty] = matrixMethod == 1 ? jordanGaussMethod.solve(initialMatrix) : borderingMethod.solve(initialMatrix);
-        win.webContents.send('update-matrix', initialMatrix.values, inversedMatrix.values);
+        method = matrixMethod;
+        try {
+            new MatrixValidator(initialMatrix).validate();
+            [inversedMatrix, difficulty] = matrixMethod == 1 ? jordanGaussMethod.inverse(initialMatrix) : borderingMethod.inverse(initialMatrix);
+            win.webContents.send('update-matrix', initialMatrix.values, inversedMatrix.values, difficulty);
+        } catch (error) {
+            win.webContents.send('error', error instanceof InvalidDataException ? error.message : "Error!");
+        }
     });
+
     ipcMain.on('get-size', (event, size, matrixMethod) => {
         initialMatrix = new Matrix(size, size);
-        [inversedMatrix, difficulty] = matrixMethod == 1 ? jordanGaussMethod.solve(initialMatrix) : borderingMethod.solve(initialMatrix);
-        win.webContents.send('update-matrix', initialMatrix.values, inversedMatrix.values);
+        method = matrixMethod;
+        try {
+            [inversedMatrix, difficulty] = matrixMethod == 1 ? jordanGaussMethod.inverse(initialMatrix) : borderingMethod.inverse(initialMatrix);
+            win.webContents.send('update-matrix', initialMatrix.values, inversedMatrix.values, difficulty);
+        } catch (error) {
+            win.webContents.send('error', error instanceof InvalidDataException ? error.message : "Error!");
+        }
     });
-    ipcMain.on('get-file', (event, path, matrixMethod) => {
-        initialMatrix = new Matrix(fileHandler.readFile(path));
-        [inversedMatrix, difficulty] = matrixMethod == 1 ? jordanGaussMethod.solve(initialMatrix) : borderingMethod.solve(initialMatrix);
-        win.webContents.send('update-matrix', initialMatrix.values, inversedMatrix.values);
+
+    ipcMain.on('get-file', (event, location, matrixMethod) => {
+        method = matrixMethod;
+        try {
+            initialMatrix = fileHandler.readFile(location);
+            new MatrixValidator(initialMatrix).validate();
+            [inversedMatrix, difficulty] = matrixMethod == 1 ? jordanGaussMethod.inverse(initialMatrix) : borderingMethod.inverse(initialMatrix);
+            win.webContents.send('update-matrix', initialMatrix.values, inversedMatrix.values, difficulty);
+        } catch(error) {
+            win.webContents.send('error', error instanceof InvalidDataException ? error.message : "Error!");
+        }
     });
+
     ipcMain.on('create-file', (event) => {
-        fileHandler.writeData(inversedMatrix.values);
-        win.webContents.send('ready-file', true);
+        try {
+            const location = fileHandler.writeData(initialMatrix, inversedMatrix, method, difficulty);
+            win.webContents.send('ready-file', location);
+        } catch(error) {
+            win.webContents.send('error', error instanceof InvalidDataException ? error.message : "Error!");
+        }
     });
 });
 

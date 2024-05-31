@@ -56,6 +56,7 @@ main {
     flex-direction: column;
     margin-left: 240px;
     gap: 10px;
+    z-index: 2;
 }
 
 .matrix-input .matrix-row {
@@ -82,6 +83,7 @@ main {
     display: flex;
     justify-content: start;
     gap: 20px;
+    z-index: 0;
 }
 
 .matrix-output {

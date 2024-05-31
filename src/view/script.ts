@@ -9,25 +9,23 @@ let matrixInputs: HTMLCollectionOf<HTMLInputElement> = document.getElementsByCla
 let matrixOutput: HTMLElement = document.getElementsByClassName('matrix-output')[0] as HTMLElement;
 let resultButton: HTMLElement = document.getElementsByClassName('result-button')[0] as HTMLElement;
 
-function resizeMatrixInput() {
-    let value: number = parseInt(matrixSizeInput.value);
-    if (value > 10) {
+function resizeMatrixInput(size: number) {
+    if (size > 10) {
         matrixSizeInput.value = "10";
-        value = 10;
+        size = 10;
     }
-    if (value < 2) {
+    if (size < 2) {
         matrixSizeInput.value = "2";
-        value = 2;
+        size = 2;
     }
     matrixFields.innerHTML = "";
-    matrixOutput.style.left = `${value * 34}px`
-    for (let i: number = 0; i <value; i++) {
+    matrixOutput.style.left = `${size * 36}px`
+    for (let i: number = 0; i < size; i++) {
         let matrixRow: HTMLElement = document.createElement('div');
         matrixRow.classList.add("matrix-row");
-        for (let j: number = 0; j < value; j++) {
+        for (let j: number = 0; j < size; j++) {
             let elementInput: HTMLInputElement = document.createElement('input') as HTMLInputElement;
             elementInput.type = "text";
-            elementInput.name = `${i}_${j}`;
             elementInput.classList.add("input-element");
             elementInput.required = true;
             elementInput.disabled = parseInt(matrixInputSelect.value) == 1 ? false : true;
@@ -44,10 +42,13 @@ function disableMatrixInputs(isDisabled: boolean) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    resizeMatrixInput();
+    resizeMatrixInput(parseInt(matrixSizeInput.value));
+    resultButton.style.display = "none";
 });
 
-matrixSizeInput.addEventListener('input', resizeMatrixInput);
+matrixSizeInput.addEventListener('input', () => {
+    resizeMatrixInput(parseInt(matrixSizeInput.value));
+});
 
 matrixInputSelect.addEventListener('input', () => {
     let value: number = parseInt(matrixInputSelect.value);
@@ -55,16 +56,22 @@ matrixInputSelect.addEventListener('input', () => {
         disableMatrixInputs(false);
         matrixFileInputWrapper.style.display = "none";
         matrixFileInput.required = false;
+        matrixSizeInput.disabled = false;
+        matrixSizeInput.required = true;
     }
     if (value == 2) {
         disableMatrixInputs(true);
         matrixFileInputWrapper.style.display = "none";
         matrixFileInput.required = false;
+        matrixSizeInput.disabled = false;
+        matrixSizeInput.required = true;
     }
     if (value == 3) {
         disableMatrixInputs(true);
         matrixFileInputWrapper.style.display = "block";
         matrixFileInput.required = true;
+        matrixSizeInput.disabled = true;
+        matrixSizeInput.required = false;
     }
 });
 
@@ -93,12 +100,13 @@ form.addEventListener('submit', (e) => {
 
 resultButton.addEventListener('click', () => {
     window.electronAPI.createFile();
-    window.electronAPI.onReadyFile((isReady: boolean) => {
-        console.log(isReady);
+    window.electronAPI.onReadyFile((location: string) => {
+        
     })
 });
 
-window.electronAPI.onUpdateMatrix((initialMatrix: number[][], inversedMatrix: number[][]) => {
+window.electronAPI.onUpdateMatrix((initialMatrix: number[][], inversedMatrix: number[][], difficulty: number) => {
+    resizeMatrixInput(inversedMatrix.length);
     matrixOutput.innerHTML = "";
     for (let i: number = 0; i < initialMatrix.length; i++) {
         let matrixRow: HTMLElement = document.createElement('div');
@@ -111,4 +119,11 @@ window.electronAPI.onUpdateMatrix((initialMatrix: number[][], inversedMatrix: nu
         }
         matrixOutput.appendChild(matrixRow);
     }
+    let showDifficulty: string = `<p>Algorithm difficulty: ${difficulty}</p>`;
+    matrixOutput.innerHTML += showDifficulty;
+    resultButton.style.display = "block";
+});
+
+window.electronAPI.onError((message: string) => {
+    matrixOutput.innerHTML = `<p>${message}</p>`;
 });
